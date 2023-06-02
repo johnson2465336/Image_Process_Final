@@ -1,0 +1,17 @@
+clc;
+close all;
+clear all;
+
+I = imread('blurry car.jpg');%讀取圖片
+I=rgb2gray(I);%彩色轉灰階
+I=I(30:1272,87:1743);%去除白邊
+imshow(I);%顯示原圖
+m=fspecial('motion',20,0);%猜測原圖
+m2=zeros(size(I));%產生一個和原圖I一樣大小的全0矩陣
+m2(1,1:21)=m;%將m的row1col1到19補到m2的row1col1到19
+mf=fft2(m2);%對m2做傅立葉轉化
+d=0.06;%給定閾值
+mf(abs(mf)<d)=1;%若絕對值mf小於閾值,則令該值為1,避免值為0的時候除法出錯
+bmi=abs(ifft2(fft2(I)./mf));%對I做傅立葉轉化後與mf做點對點除法,再對結果作反傅立葉轉換,最後取絕對值
+I_out=mat2gray(bmi)*3;%將bmi歸一化,使矩陣的每個元素的值都在0和1之間,並調整亮度
+figure;imshow(I_out);%顯示motion deblurring後的圖
